@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: raw_layer
+    database: delta_dev      
+    schema: bronze     
+    tables:
+      - name: transactions_json
