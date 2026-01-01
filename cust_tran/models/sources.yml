@@ -2,7 +2,74 @@ version: 2
 
 sources:
   - name: raw_layer
-    database: delta_dev      
-    schema: bronze     
+    database: hive
+    schema: bronze
+    loader: S3
+
     tables:
       - name: transactions_json
+      # 1. TRANSACTIONS
+      - name: transactions
+        description: "Raw JSON transactions from landing"
+        external:
+          location: 's3://my-bank-datalake-dev/landing/transactions/'
+          file_format: 'JSON'
+        columns:
+          - name: tran_id
+            data_type: varchar
+          - name: acct_id
+            data_type: varchar
+          - name: tran_type
+            data_type: varchar
+          - name: amount
+            data_type: double
+          - name: tran_date
+            data_type: varchar
+
+      # 2. CUSTOMERS
+      - name: customers
+        description: "Raw JSON customer master data"
+        external:
+          location: 's3://my-bank-datalake-dev/landing/customers/'
+          file_format: 'JSON'
+        columns:
+          - name: cust_id
+            data_type: varchar
+          - name: cust_no
+            data_type: varchar
+          - name: cust_name    # Note: Source has full name, not first/last
+            data_type: varchar
+          - name: is_retail_cust
+            data_type: varchar
+
+      # 3. ACCOUNTS
+      - name: accounts
+        description: "Raw JSON account master data"
+        external:
+          location: 's3://my-bank-datalake-dev/landing/accounts/'
+          file_format: 'JSON'
+        columns:
+          - name: acct_id
+            data_type: varchar
+          - name: acct_no
+            data_type: varchar
+          - name: product
+            data_type: varchar
+          - name: sub_product  # New column found in JSON
+            data_type: varchar
+          - name: is_actv
+            data_type: varchar
+          - name: holding_type # New column found in JSON
+            data_type: varchar
+
+      # 4. CUSTOMER-ACCOUNT LINK
+      - name: cust_acct
+        description: "Raw JSON link table"
+        external:
+          location: 's3://my-bank-datalake-dev/landing/cust_acct/'
+          file_format: 'JSON'
+        columns:
+          - name: acct_id
+            data_type: varchar
+          - name: cust_id
+            data_type: varchar
