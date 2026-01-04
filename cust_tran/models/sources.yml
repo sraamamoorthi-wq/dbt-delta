@@ -10,11 +10,13 @@ sources:
       - name: transactions_json
       # 1. TRANSACTIONS
       - name: transactions
-        description: "Raw JSON transactions from landing"
+        description: "Raw PARQUET transactions from landing"
         external:
-          location: 's3://my-bank-datalake-dev/landing/transactions/'
-          file_format: 'JSON'
+          location: 's3://my-bank-datalake-dev/source/bronze/transactions/'
+          file_format: 'PARQUET'
         columns:
+          - name: record_date
+            data_type: date
           - name: tran_id
             data_type: varchar
           - name: acct_id
@@ -24,14 +26,14 @@ sources:
           - name: amount
             data_type: double
           - name: tran_date
-            data_type: varchar
+            data_type: date
 
       # 2. CUSTOMERS
       - name: customers
-        description: "Raw JSON customer master data"
+        description: "Raw PARQUET customer master data"
         external:
-          location: 's3://my-bank-datalake-dev/landing/customers/'
-          file_format: 'JSON'
+          location: 's3://my-bank-datalake-dev/source/bronze/customers/'
+          file_format: 'PARQUET'
         columns:
           - name: cust_id
             data_type: varchar
@@ -39,36 +41,48 @@ sources:
             data_type: varchar
           - name: cust_name    # Note: Source has full name, not first/last
             data_type: varchar
+          - name: record_date
+            data_type: date
+          - name: cust_join_date
+            data_type: date
           - name: is_retail_cust
             data_type: varchar
 
       # 3. ACCOUNTS
       - name: accounts
-        description: "Raw JSON account master data"
+        description: "Raw PARQUET account master data"
         external:
-          location: 's3://my-bank-datalake-dev/landing/accounts/'
-          file_format: 'JSON'
+          location: 's3://my-bank-datalake-dev/source/bronze/accounts/'
+          file_format: 'PARQUET'
         columns:
           - name: acct_id
             data_type: varchar
+          - name: record_date
+            data_type: date
+          - name: acct_open_date
+            data_type: date
           - name: acct_no
             data_type: varchar
           - name: product
             data_type: varchar
-          - name: sub_product  # New column found in JSON
+          - name: sub_product  # New column found in PARQUET
             data_type: varchar
           - name: is_actv
             data_type: varchar
-          - name: holding_type # New column found in JSON
+          - name: retail_acct
+            data_type: varchar
+          - name: holding_type # New column found in PARQUET
             data_type: varchar
 
       # 4. CUSTOMER-ACCOUNT LINK
       - name: cust_acct
-        description: "Raw JSON link table"
+        description: "Raw PARQUET link table"
         external:
-          location: 's3://my-bank-datalake-dev/landing/cust_acct/'
-          file_format: 'JSON'
+          location: 's3://my-bank-datalake-dev/source/bronze/cust_acct/'
+          file_format: 'PARQUET'
         columns:
+          - name: record_date
+            data_type: date
           - name: acct_id
             data_type: varchar
           - name: cust_id
