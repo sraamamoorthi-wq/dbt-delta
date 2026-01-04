@@ -16,8 +16,6 @@
 SELECT
     -- Partition is directly the passed business date (1st of month)
     CAST('{{ business_date }}' AS DATE) as snp_dt_mth_prtn,
-    
-    link_id,
     cust_id,
     acct_id,
     current_timestamp as last_updated_at
