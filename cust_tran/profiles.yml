@@ -1,0 +1,26 @@
+# 1. Profile Name: MUST match the 'profile' key in your dbt_project.yml
+cust_tran_profile:
+  target: dev
+  outputs:
+    dev:
+      type: trino
+      method: ldap  # Use 'ldap' if you have a password, 'none' if no auth
+      
+      # Connection Details
+      user: "{{ env_var('DBT_TRINO_USER') }}"         # Best practice: Read from environment variable
+      password: "{{ env_var('DBT_TRINO_PASSWORD') }}" # Best practice: Read from environment variable
+      
+      host: "{{ env_var('TRINO_URL') }}" # e.g., localhost or starburst.example.com
+      port: 443                    # 8080 for HTTP, 443 for HTTPS
+      http_scheme: https            # http or https
+      
+      # Database Config
+      catalog: iceberg_dev          # Your catalog name
+      schema: il_silver             # Default schema for this target
+      
+      # Performance Tuning
+      threads: 4
+      
+      # Optional: Session Properties (Useful for Iceberg/Glue)
+      session_properties:
+        query_max_run_time: 1h
