@@ -7,16 +7,31 @@ env:
     DBT_TRINO_PASSWORD: "prod/dbt/starburst:DBT_TRINO_PASSWORD"
     DBT_SCHEMA: "prod/dbt/starburst:DBT_SCHEMA"
 
-phases:
+pphases:
   install:
     runtime-versions:
-      python: 3.10
+      # CodeBuild expects just Major.Minor here. 
+      # It will pull the latest 3.11.x (likely 3.11.9 or newer).
+      python: 3.11
     commands:
-      - export PYTHONWARNINGS="ignore:Unverified HTTPS request"
-      - echo "Installing dbt..."
-      - pip install dbt-core dbt-starburst
+      - echo "Checking python version..."
+      - python --version
+      
+      # 1. Upgrade pip to ensure the fastest dependency resolver
+      - pip install --upgrade pip
+
+      # 2. VITAL FIX: Pin urllib3 < 2.0 to stop the dependency loop
+      # dbt-core 1.7.x dependencies still require older urllib3
+      - pip install "urllib3<2.0"
+
+      # 3. Install specific versions of dbt-core and dbt-trino
+      - pip install dbt-core==1.7.4 dbt-trino==1.7.1
+
   build:
     commands:
+      - echo "Verifying installations..."
+      - dbt --version
+      - echo "dbt build process starting..."
       - echo "Entering project directory..."
       - cd cust_tran
       
