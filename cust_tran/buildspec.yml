@@ -20,9 +20,11 @@ phases:
       # 1. Upgrade pip to ensure the fastest dependency resolver
       - pip install --upgrade pip
 
+      
       # 2. VITAL FIX: Pin urllib3 < 2.0 to stop the dependency loop
       # dbt-core 1.7.x dependencies still require older urllib3
       - pip install "urllib3<2.0"
+      - pip install "protobuf>=4.21.1,<5.0.0"
 
       # 3. Install specific versions of dbt-core and dbt-trino
       - pip install dbt-core==1.7.4 dbt-trino==1.7.1
