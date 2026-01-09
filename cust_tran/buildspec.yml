@@ -3,9 +3,9 @@ version: 0.2
 env:
   # We will map these in the AWS Console later
   secrets-manager:
-    DBT_HOST: "prod/dbt/starburst:TRINO_URL"
-    DBT_USER: "prod/dbt/starburst:DBT_TRINO_USER"
-    DBT_PASSWORD: "prod/dbt/starburst:DBT_TRINO_PASSWORD"
+    TRINO_URL: "prod/dbt/starburst:TRINO_URL"
+    DBT_TRINO_USER: "prod/dbt/starburst:DBT_TRINO_USER"
+    DBT_TRINO_PASSWORD: "prod/dbt/starburst:DBT_TRINO_PASSWORD"
     DBT_SCHEMA: "prod/dbt/starburst:DBT_SCHEMA"
 
 phases:
