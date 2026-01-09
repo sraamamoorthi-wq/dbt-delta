@@ -1,0 +1,25 @@
+version: 0.2
+
+env:
+  # We will map these in the AWS Console later
+  secrets-manager:
+    DBT_HOST: "prod/dbt/starburst:DBT_HOST"
+    DBT_USER: "prod/dbt/starburst:DBT_USER"
+    DBT_PASSWORD: "prod/dbt/starburst:DBT_PASSWORD"
+    DBT_SCHEMA: "prod/dbt/starburst:DBT_SCHEMA"
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.10
+    commands:
+      - echo "Installing dbt and Starburst adapter..."
+      - pip install dbt-core dbt-starburst
+  build:
+    commands:
+      - echo "Starting dbt run..."
+      # This assumes your profiles.yml is in the root. 
+      # If it's in a folder, cd into it first.
+      - dbt deps --profiles-dir .
+      - dbt debug --profiles-dir .
+      - dbt run --profiles-dir .
