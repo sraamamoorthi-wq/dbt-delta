@@ -16,7 +16,7 @@ cust_tran_profile:
       
       # Database Config
       catalog: iceberg_dev          # Your catalog name
-      schema: il_silver             # Default schema for this target
+      schema: "{{ env_var('DBT_SCHEMA') }}" # Default schema for this target
       
       # Performance Tuning
       threads: 4
