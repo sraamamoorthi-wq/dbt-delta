@@ -4,7 +4,7 @@
     schema='il_silver',
     materialized='scd2_trino',
     unique_key='cust_id',
-    check_cols=['cust_no', 'cust_name', 'cust_join_date', 'is_retail_cust'],
+    check_cols=['cust_no', 'cust_name', 'cust_join_date'],
     tags=['daily_ingestion']
   )
 }}
@@ -14,7 +14,6 @@ select
     cust_no,
     cust_name,
     cust_join_date,
-    is_retail_cust,
     record_date
 from {{ source('raw_layer', 'customers') }}
 

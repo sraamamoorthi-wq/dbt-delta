@@ -27,12 +27,12 @@ SELECT
 FROM {{ ref('monthly_customers') }} c
 
 -- Link Customer to Account
-JOIN {{ ref('monthly_cust_acct') }} b
+INNER JOIN {{ ref('monthly_cust_acct') }} b
   ON c.cust_id = b.cust_id
  AND c.snp_dt_mth_prtn = b.snp_dt_mth_prtn
 
 -- Link to Account Details (Filter for Active/Retail)
-JOIN {{ ref('monthly_accounts') }} a
+INNER JOIN {{ ref('monthly_accounts') }} a
   ON b.acct_id = a.acct_id
  AND b.snp_dt_mth_prtn = a.snp_dt_mth_prtn
 
@@ -42,8 +42,7 @@ LEFT JOIN {{ ref('monthly_transactions') }} t
  AND a.snp_dt_mth_prtn = t.snp_dt_mth_prtn
 
 WHERE 
-    c.is_retail_cust = 'Y'
-    AND a.retail_acct = 'Y'
+    a.retail_acct = 'Y'
     AND a.is_actv = 'Y'
 
 GROUP BY 

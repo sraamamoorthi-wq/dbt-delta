@@ -45,8 +45,6 @@ sources:
             data_type: date
           - name: cust_join_date
             data_type: date
-          - name: is_retail_cust
-            data_type: varchar
 
       # 3. ACCOUNTS
       - name: accounts

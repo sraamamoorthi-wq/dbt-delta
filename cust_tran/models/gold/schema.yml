@@ -1,0 +1,115 @@
+models:
+  - name: monthly_customers
+    description: "customer monthly snapshot with enriched details for consumption. This is a gold layer for business reporting and analytics showing customer details on a monthly basis."
+    columns:
+      - name: snp_dt_mth_prtn
+        data_type: date
+        description: "This represents for which the snapshot is taken. Its always 1st of the month."
+
+      - name: cust_id
+        data_type: varchar
+        description: "cust_id is a unique identifier for each customer system generated"     
+
+      - name: cust_no
+        data_type: varchar
+        description: "this is a unique customer number assigned to each customer by the bank"
+
+      - name: cust_name
+        data_type: varchar
+        description: "customer's full name"
+
+      - name: cust_join_date
+        data_type: date
+        description: "customer's join date"
+
+      - name: last_updated_at
+        data_type: timestamp(6) with time zone
+        description: "record last updated timestamp"
+
+  - name: monthly_accounts
+    description: "account monthly snapshot with enriched details for consumption. This is a gold layer for business reporting and analytics showing account details on a monthly basis."
+    columns:
+      - name: snp_dt_mth_prtn
+        data_type: date
+        description:  "This represents for which the snapshot is taken. Its always 1st of the month."
+
+      - name: acct_id
+        data_type: varchar
+        description: "acct_id is a unique identifier for each account"
+
+      - name: acct_no
+        data_type: varchar
+        description: "acct_no is a unique account number assigned to each account by the bank"
+
+      - name: product
+        data_type: varchar
+        description: "Product type of the account - Savings, Checking, Credit Card, Loan etc."
+
+      - name: sub_product
+        data_type: varchar
+        description: "Product sub type of the account - e.g. for Savings product, sub_product can be Standard Savings, Premium Savings etc."
+      - name: is_actv
+        data_type: varchar
+        description: "is the account active?"
+
+      - name: retail_acct
+        data_type: varchar
+        description: "is this a retail account? (An account is a retail account if it is mapped to a retail product)"
+
+      - name: holding_type
+        data_type: varchar
+        description: "Mode of holding of the account - Single, Joint, Corporate etc."
+
+      - name: acct_open_date
+        data_type: date
+        description: "account open date"
+
+      - name: last_updated_at
+        data_type: timestamp(6) with time zone
+        description: "record last updated timestamp"
+
+  - name: monthly_transactions
+    description: "monthly aggregated transaction metrics for consumption. This is a gold layer for business reporting and analytics showing transaction metrics on a monthly basis."  
+    columns:
+      - name: snp_dt_mth_prtn
+        data_type: date
+        description: "This represents for which the snapshot is taken. Its always 1st of the month."  
+
+      - name: acct_id
+        data_type: varchar
+        description: "acct_id is a unique identifier for each account.This should map to dim_accounts.acct_id field to get which account the transaction belongs to."
+
+      - name: tran_type
+        data_type: varchar
+        description: "Is is a credit or debit transaction?"
+
+      - name: total_trans_count
+        data_type: bigint
+        description: "Total number of transactions of type (credit/debit) for the account in the month"
+
+      - name: total_amount
+        data_type: double
+        description: "transaction amount sum of type (credit/debit) for the account in the month"
+
+      - name: last_updated_at
+        data_type: timestamp(6) with time zone
+        description: "record last updated timestamp"
+
+  - name: monthly_cust_acct
+    description: "bridge table mapping customers to their accounts on a monthly basis for consumption. This is a gold layer for business reporting and analytics."
+    columns:
+      - name: snp_dt_mth_prtn
+        data_type: date
+        description: ""
+
+      - name: cust_id
+        data_type: varchar
+        description: "cust_id is a unique identifier for each customer. This should map to dim_customers.cust_id field to get which customer the account belongs to."
+
+      - name: acct_id
+        data_type: varchar
+        description: "acct_id is a unique identifier for each account. This should map to dim_accounts.acct_id field to get which account belongs to which customer."
+
+      - name: last_updated_at
+        data_type: timestamp(6) with time zone
+        description: "record last updated timestamp"

@@ -1,0 +1,7 @@
+models:
+  - name: cust_agg_transactions
+    description: >
+     Final Consumption view showing customer aggregated transaction metrics.
+     This is a gold layer for business reporting and analytics.
+     This is aggregated and enriched data ready for consumption by business users for insights and decision making
+   

@@ -19,7 +19,6 @@ SELECT
     cust_id,
     cust_no,
     cust_name,
-    is_retail_cust,
     cust_join_date,
     current_timestamp as last_updated_at
 

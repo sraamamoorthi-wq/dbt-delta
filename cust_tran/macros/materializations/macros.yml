@@ -1,0 +1,8 @@
+version: 2
+macros:
+  - name: scd2_trino
+    description: '{{ doc("materialization_custom_incremental") }}'
+    # You can even add arguments here to document config options!
+    arguments:
+      - name: unique_key
+        description: The unique column or combination of columns to capture changes for SCD Type 2
