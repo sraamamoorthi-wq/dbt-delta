@@ -14,7 +14,7 @@ phases:
       python: 3.10
     commands:
       - echo "Installing dbt and Starburst adapter..."
-      - pip install dbt-core dbt-starburst
+      - pip install dbt-core dbt-trino
   build:
     commands:
       - echo "Starting dbt run..."
