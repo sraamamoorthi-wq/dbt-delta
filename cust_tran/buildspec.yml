@@ -17,6 +17,8 @@ phases:
       - pip install dbt-core dbt-trino
   build:
     commands:
+      - echo "Entering project directory..."
+      - cd cust_tran
       - echo "Starting dbt run..."
       # This assumes your profiles.yml is in the root. 
       # If it's in a folder, cd into it first.
