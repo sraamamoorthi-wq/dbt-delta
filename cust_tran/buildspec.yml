@@ -20,14 +20,17 @@ phases:
       - echo "Entering project directory..."
       - cd cust_tran
       
-      # FIX 1: Wrap this entire line in single quotes so YAML doesn't break
+      # FIX 1: (Correct as is)
       - 'RUN_DATE="${BUSINESS_DATE:-$(date -d "$(date +%Y-%m-01) -1 month" +%Y-%m-%d)}"'
       
       - echo "------------------------------------------------"
-      - echo "Processing Data For Business Date: $RUN_DATE"
+      
+      # FIX 3: Wrap this in single quotes because of the "Date:" colon
+      - 'echo "Processing Data For Business Date: $RUN_DATE"'
+      
       - echo "------------------------------------------------"
       
       - dbt deps --profiles-dir .
       
-      # FIX 2: Wrap this entire line in single quotes too (because of the JSON colons)
+      # FIX 2: (Correct as is)
       - 'dbt run --profiles-dir . --vars "{\"business_date\": \"$RUN_DATE\"}"'
