@@ -1,7 +1,6 @@
 version: 0.2
 
 env:
-  # We will map these in the AWS Console later
   secrets-manager:
     TRINO_URL: "prod/dbt/starburst:TRINO_URL"
     DBT_TRINO_USER: "prod/dbt/starburst:DBT_TRINO_USER"
@@ -14,25 +13,21 @@ phases:
       python: 3.10
     commands:
       - export PYTHONWARNINGS="ignore:Unverified HTTPS request"
-      - echo "Installing dbt and Starburst adapter..."
-      - pip install dbt-core dbt-trino
+      - echo "Installing dbt..."
+      - pip install dbt-core dbt-starburst
   build:
     commands:
       - echo "Entering project directory..."
       - cd cust_tran
-      # ---------------------------------------------------------
-      # DATE LOGIC:
-      # 1. If BUSINESS_DATE env var exists (Manual Override), use it.
-      # 2. Else, calculate 1st day of previous month.
-      # ---------------------------------------------------------
-      - RUN_DATE="${BUSINESS_DATE:-$(date -d "$(date +%Y-%m-01) -1 month" +%Y-%m-%d)}"
+      
+      # FIX 1: Wrap this entire line in single quotes so YAML doesn't break
+      - 'RUN_DATE="${BUSINESS_DATE:-$(date -d "$(date +%Y-%m-01) -1 month" +%Y-%m-%d)}"'
       
       - echo "------------------------------------------------"
       - echo "Processing Data For Business Date: $RUN_DATE"
       - echo "------------------------------------------------"
-      - echo "Starting dbt run..."
-      # This assumes your profiles.yml is in the root. 
-      # If it's in a folder, cd into it first.
+      
       - dbt deps --profiles-dir .
-      - dbt debug --profiles-dir .
-      - dbt run --profiles-dir . --vars "{\"business_date\": \"$RUN_DATE\"}"
+      
+      # FIX 2: Wrap this entire line in single quotes too (because of the JSON colons)
+      - 'dbt run --profiles-dir . --vars "{\"business_date\": \"$RUN_DATE\"}"'
