@@ -7,7 +7,7 @@ env:
     DBT_TRINO_PASSWORD: "prod/dbt/starburst:DBT_TRINO_PASSWORD"
     DBT_SCHEMA: "prod/dbt/starburst:DBT_SCHEMA"
 
-pphases:
+phases:
   install:
     runtime-versions:
       # CodeBuild expects just Major.Minor here. 
