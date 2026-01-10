@@ -16,7 +16,7 @@
 
             {# 2. Construct the CREATE TABLE statement #}
             {% set create_query %}
-                CREATE TABLE {{ table_full_name }} (
+                CREATE OR REPLACE TABLE {{ table_full_name }} (
                     {% for col in node.columns.values() %}
                         {{ col.name }} {{ col.data_type }}{% if not loop.last %},{% endif %}
                     {% endfor %}
@@ -33,5 +33,6 @@
             
         {% endif %}
     {%- endfor %}
+
 
 {% endmacro %}
