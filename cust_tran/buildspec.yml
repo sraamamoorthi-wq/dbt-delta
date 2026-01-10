@@ -34,12 +34,13 @@ phases:
       # ----------------------------------------------------------------
       - echo "Triggering Glue Job $GLUE_JOB_NAME with Bookmark Reset $RESET_BOOKMARK"
       
-      # Start the job and capture the Run ID
-      # Note: We use strict indentation here
+
       - |
+        JOB_ARGS="{\"--reset_bookmark\": \"${RESET_BOOKMARK}\"}"
+        
         JOB_RUN_ID=$(aws glue start-job-run \
           --job-name "$GLUE_JOB_NAME" \
-          --arguments="--reset_bookmark=${RESET_BOOKMARK}" \
+          --arguments "$JOB_ARGS" \
           --query 'JobRunId' \
           --output text)
       
