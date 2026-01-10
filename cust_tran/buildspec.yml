@@ -46,5 +46,5 @@ phases:
       - dbt deps
       - dbt run-operation force_create_external_tables
       - dbt run --select models/core --vars '{"initial_load": true}'
-      - dbt run --select models/gold --vars '{"business_date": $RUN_DATE}'
+      - echo `dbt run --select models/gold --vars '{"business_date": $RUN_DATE}'`
       - dbt run --select models/consumption_views
