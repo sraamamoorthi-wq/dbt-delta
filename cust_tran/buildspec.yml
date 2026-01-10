@@ -34,20 +34,19 @@ phases:
       - echo "Verifying installations..."
       - dbt --version
       - echo "dbt build process starting..."
-      - echo "Entering project directory..."
       - cd cust_tran
       
-      # FIX 1: (Correct as is)
-      - 'RUN_DATE="${BUSINESS_DATE:-$(date -d "$(date +%Y-%m-01) -1 month" +%Y-%m-%d)}"'
+      # FIX 1: Use 'export' and simplify the date logic
+      # We calculate the date and immediately export it so it exists for all following commands
+      - export RUN_DATE=$(date -d "$(date +%Y-%m-01) -1 month" +%Y-%m-%d)
       
       - echo "------------------------------------------------"
-      
-      # FIX 3: Wrap this in single quotes because of the "Date:" colon
-      - 'echo "Processing Data For Business Date: $RUN_DATE"'
-      
+      - echo "Processing Data For Business Date: $RUN_DATE"
       - echo "------------------------------------------------"
       
       - dbt deps --profiles-dir .
       
-      # FIX 2: (Correct as is)
-      - 'dbt run --profiles-dir . --vars "{\"business_date\": \"$RUN_DATE\"}"'
+      # FIX 2: Simplified Quoting for dbt vars
+      # We use the YAML-style syntax for vars which is cleaner and less error-prone
+      # The outer double quotes ensure the shell expands $RUN_DATE
+      - dbt run --profiles-dir . --vars "business_date: $RUN_DATE"
