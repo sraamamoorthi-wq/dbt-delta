@@ -36,15 +36,20 @@ phases:
       - echo "dbt build process starting..."
       - cd cust_tran
       
-      # FIX 1: Wrap the whole line in single quotes so YAML ignores the special chars
-      - 'export RUN_DATE=$(date -d "$(date +%Y-%m-01) -1 month" +%Y-%m-%d)'
+      # FIX 1: Export needs to be available to current shell execution
+      - export RUN_DATE=$(date -d "$(date +%Y-%m-01) -1 month" +%Y-%m-%d)
       
       - echo "------------------------------------------------"
-      - 'echo "Processing Data For Business Date: $RUN_DATE"'
+      - echo "Processing Data For Business Date: $RUN_DATE"
       - echo "------------------------------------------------"
       - dbt clean 
       - dbt deps
       - dbt run-operation force_create_external_tables
-      - echo `dbt run --select models/core --vars '{"initial_load": true}'`
-      - echo `dbt run --select models/gold --vars '{"business_date": $RUN_DATE}'`
+      
+      # FIX 2 & 3: Wrapped in double quotes for YAML, removed 'echo'/'backticks'
+      - "dbt run --select models/core --vars '{\"initial_load\": true}'"
+      
+      # FIX 4: Correct quoting to allow $RUN_DATE variable expansion
+      - "dbt run --select models/gold --vars \"{\\\"business_date\\\": \\\"$RUN_DATE\\\"}\""
+      
       - dbt run --select models/consumption_views
