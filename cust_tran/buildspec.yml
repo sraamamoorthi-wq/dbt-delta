@@ -1,6 +1,11 @@
 version: 0.2
 
 env:
+  variables:
+    # 1. Define your Glue Job Name here
+    GLUE_JOB_NAME: "json_to_parquet"
+    # Default to false. You can override this in CodeBuild "Start Build" options
+    RESET_BOOKMARK: "false"
   secrets-manager:
     TRINO_URL: "prod/dbt/starburst:TRINO_URL"
     DBT_TRINO_USER: "prod/dbt/starburst:DBT_TRINO_USER"
@@ -10,19 +15,11 @@ env:
 phases:
   install:
     runtime-versions:
-      # CodeBuild expects just Major.Minor here. 
-      # It will pull the latest 3.11.x (likely 3.11.9 or newer).
       python: 3.11
     commands:
       - echo "Checking python version..."
       - python --version
-      
-      # 1. Upgrade pip to ensure the fastest dependency resolver
       - pip install --upgrade pip
-
-      
-      # 2. VITAL FIX: Pin urllib3 < 2.0 to stop the dependency loop
-      # dbt-core 1.7.x dependencies still require older urllib3
       - pip install "urllib3<2.0"
       - pip install "protobuf>=4.21.1,<5.0.0"
 
@@ -35,21 +32,43 @@ phases:
       - dbt --version
       - echo "dbt build process starting..."
       - cd cust_tran
-      
-      # FIX 1: Export needs to be available to current shell execution
+      # ----------------------------------------------------------------
+      # STEP 1: TRIGGER AWS GLUE JOB (BLOCKING)
+      # ----------------------------------------------------------------
+      - echo "Triggering Glue Job: $GLUE_JOB_NAME with Bookmark Reset: $RESET_BOOKMARK"
+      # Start the job and capture the Run ID. 
+      # We pass the bookmark reset as a job argument "--reset_bookmark"
+      - |
+        JOB_RUN_ID=$(aws glue start-job-run \
+          --job-name "$GLUE_JOB_NAME" \
+          --arguments="--reset_bookmark=${RESET_BOOKMARK}" \
+          --query 'JobRunId' \
+          --output text)
+      - echo "Glue Job started. Run ID: $JOB_RUN_ID. Waiting for completion..."
+      # Poll the status every 15 seconds until SUCCEEDED or FAILED
+      - |
+        while :; do
+          STATUS=$(aws glue get-job-run --job-name "$GLUE_JOB_NAME" --run-id "$JOB_RUN_ID" --query 'JobRun.JobRunState' --output text)
+          echo "Current Glue Job Status: $STATUS"
+          if [ "$STATUS" == "SUCCEEDED" ]; then
+            echo "Glue Job finished successfully! Proceeding to dbt..."
+            break
+          elif [ "$STATUS" == "FAILED" ] || [ "$STATUS" == "STOPPED" ] || [ "$STATUS" == "TIMEOUT" ]; then
+            echo "Error: Glue Job failed. Stopping build."
+            exit 1
+          fi
+          sleep 15
+        done
+      # ----------------------------------------------------------------
+      # STEP 2: DBT TRANSFORMATION
+      # ----------------------------------------------------------------
       - export RUN_DATE=$(date -d "$(date +%Y-%m-01) -1 month" +%Y-%m-%d)
-      
       - echo "------------------------------------------------"
       - 'echo "Processing Data For Business Date: $RUN_DATE"'
       - echo "------------------------------------------------"
       - dbt clean 
       - dbt deps
       - dbt run-operation force_create_external_tables
-      
-      # FIX 2 & 3: Wrapped in double quotes for YAML, removed 'echo'/'backticks'
       - "dbt run --select models/core --vars '{\"initial_load\": true}'"
-      
-      # FIX 4: Correct quoting to allow $RUN_DATE variable expansion
       - "dbt run --select models/gold --vars \"{\\\"business_date\\\": \\\"$RUN_DATE\\\"}\""
-      
       - dbt run --select models/consumption_views
