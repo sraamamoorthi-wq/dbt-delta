@@ -42,10 +42,9 @@ phases:
       - echo "------------------------------------------------"
       - 'echo "Processing Data For Business Date: $RUN_DATE"'
       - echo "------------------------------------------------"
-      
-      - dbt deps --profiles-dir .
-      
-      # FIX 2: WRAP THE WHOLE COMMAND IN SINGLE QUOTES
-      # Inside, we use double quotes "..." for the variable expansion.
-      # This prevents the "found subkeys" error.
-      - 'dbt run --profiles-dir . --vars "business_date: $RUN_DATE"'
+      - dbt clean 
+      - dbt deps
+      - dbt run-operation force_create_external_tables
+      - dbt run --select models/core --vars '{"initial_load": true}'
+      - dbt run --select models/gold --vars '{"business_date": $RUN_DATE}'
+      - dbt run --select models/consumption_views
