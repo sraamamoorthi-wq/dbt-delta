@@ -4,6 +4,7 @@ env:
   variables:
     GLUE_JOB_NAME: "json_to_parquet"
     RESET_BOOKMARK: "false"
+    DOCS_BUCKET: "starbust_dbt_docs"
   secrets-manager:
     TRINO_URL: "prod/dbt/starburst:TRINO_URL"
     DBT_TRINO_USER: "prod/dbt/starburst:DBT_TRINO_USER"
@@ -74,3 +75,18 @@ phases:
       - "dbt run --select models/core --vars '{\"initial_load\": true}'"
       - "dbt run --select models/gold --vars \"{\\\"business_date\\\": \\\"$RUN_DATE\\\"}\""
       - dbt run --select models/consumption_views
+
+      # ----------------------------------------------------------------
+      # STEP 3: GENERATE & HOST DOCS
+      # ----------------------------------------------------------------
+      - echo "Generating dbt documentation for $RUN_DATE..."
+      
+      # Generate the static HTML/JSON files
+      - "dbt docs generate --vars \"{\\\"business_date\\\": \\\"$RUN_DATE\\\"}\""
+      
+      - echo "Uploading docs to S3 Website..."
+      # Sync the 'target' folder to your S3 bucket
+      # We exclude the compiled SQL files to save space, keeping only the web assets
+      - aws s3 sync target/ s3://$DOCS_BUCKET/ --delete --exclude "compiled/*" --exclude "run/*" --exclude "example/*"
+      
+      - echo "Docs deployed! Access them at: http://$DOCS_BUCKET.s3-website.us-east-2.amazonaws.com"
