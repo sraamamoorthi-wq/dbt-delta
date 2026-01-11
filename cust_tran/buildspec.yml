@@ -5,7 +5,7 @@ env:
     GLUE_JOB_NAME: "json_to_parquet"
     RESET_BOOKMARK: "false"
     DOCS_BUCKET: "starbust-dbt-docs"
-    GENERATE_DOCS: "false"
+    GENERATE_DOCS: "true"
   secrets-manager:
     TRINO_URL: "prod/dbt/starburst:TRINO_URL"
     DBT_TRINO_USER: "prod/dbt/starburst:DBT_TRINO_USER"
