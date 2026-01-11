@@ -3,7 +3,7 @@ version: 0.2
 env:
   variables:
     GLUE_JOB_NAME: "json_to_parquet"
-    RESET_BOOKMARK: "false"
+    RESET_BOOKMARK: "true"
     DOCS_BUCKET: "starbust-dbt-docs"
     GENERATE_DOCS: "true"
   secrets-manager:
