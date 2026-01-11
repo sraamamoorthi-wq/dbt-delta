@@ -5,6 +5,7 @@ env:
     GLUE_JOB_NAME: "json_to_parquet"
     RESET_BOOKMARK: "false"
     DOCS_BUCKET: "starbust-dbt-docs"
+    GENERATE_DOCS: "false"
   secrets-manager:
     TRINO_URL: "prod/dbt/starburst:TRINO_URL"
     DBT_TRINO_USER: "prod/dbt/starburst:DBT_TRINO_USER"
@@ -77,16 +78,20 @@ phases:
       - dbt run --select models/consumption_views
 
       # ----------------------------------------------------------------
-      # STEP 3: GENERATE & HOST DOCS
+      # STEP 3: CONDITIONAL DOCS GENERATION
       # ----------------------------------------------------------------
-      - echo "Generating dbt documentation for $RUN_DATE..."
-      
-      # Generate the static HTML/JSON files
-      - "dbt docs generate --vars \"{\\\"business_date\\\": \\\"$RUN_DATE\\\"}\""
-      
-      - echo "Uploading docs to S3 Website..."
-      # Sync the 'target' folder to your S3 bucket
-      # We exclude the compiled SQL files to save space, keeping only the web assets
-      - "aws s3 sync target/ s3://$DOCS_BUCKET/ --delete --exclude 'compiled/*' --exclude 'run/*' --exclude 'example/*'"
-      
-      - 'echo "Docs deployed! Access them at: http://$DOCS_BUCKET.s3-website.us-east-2.amazonaws.com"'
+      - |
+        if [ "$GENERATE_DOCS" == "true" ]; then
+          echo "GENERATE_DOCS is true. Building documentation..."
+          
+          # 1. Generate Docs
+          dbt docs generate --vars "{\"business_date\": \"$RUN_DATE\"}"
+          
+          # 2. Upload to S3 (Quotes inside the block are safe now)
+          echo "Uploading to S3..."
+          aws s3 sync target/ s3://$DOCS_BUCKET/ --delete --exclude "compiled/*" --exclude "run/*" --exclude "example/*"
+          
+          echo "Docs deployed! Access them at: http://$DOCS_BUCKET.s3-website.us-east-2.amazonaws.com"
+        else
+          echo "GENERATE_DOCS is set to false. Skipping documentation build."
+        fi
