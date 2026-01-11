@@ -25,4 +25,5 @@ FROM {{ ref('fact_transactions') }}
 WHERE dbt_delete_flag = 0
 -- Match transactions belonging to this specific month
 AND date_trunc('month', tran_date) = CAST('{{ business_date }}' AS DATE)
+AND dbt_valid_to = DATE'9999-12-31'
 GROUP BY 1, 2, 3
